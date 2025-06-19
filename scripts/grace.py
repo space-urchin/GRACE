@@ -54,6 +54,24 @@ def compute_gmm_density(gmm, embeddings, num_classes):
     class_priors = torch.ones(num_classes, device=embeddings.device) / num_classes
     return torch.sum(probs * class_priors, dim=1)
 
+def compute_gmm_density(gmm, embeddings, class_priors):
+    """
+    Compute GMM density: q(z) = Σy q(z|y) * π(y)
+    """
+    log_probs = gmm.log_prob(embeddings[:, None, :])  # Shape: [B, C]
+    probs = torch.exp(log_probs)                      # q(z|y)
+    density = torch.sum(probs * class_priors, dim=1)  # q(z)
+    return density
+
+def class_probs_from_labels(labels, num_classes):
+    """
+    Compute class probabilities from labeled tensor.
+    """
+    class_counts = torch.tensor([(labels == c).sum() for c in range(num_classes)], dtype=torch.float32, device=labels.device)
+    class_probs = class_counts / class_counts.sum()
+    print(class_counts)
+    return class_probs
+
 def coreset_selection(batch_emb, seed_emb, rem_X, rem_y, num_instances):
     selected = []
     seed_np = seed_emb.cpu().numpy()
@@ -88,8 +106,10 @@ def hybrid_instance_selection(batchX, batchY, model, X_labeled, y_labeled, k_unc
         density = compute_kde_density_epanechnikov(batch_emb, labeled_emb, h)
     elif method == "gmm":
         num_classes = len(np.unique(y_labeled))
+        labels_tensor = torch.tensor(y_labeled, device=device)
+        class_priors = class_probs_from_labels(labels_tensor, num_classes)
         gmm = gmm_fit(labeled_emb, torch.tensor(y_labeled, device=device), num_classes)
-        density = compute_gmm_density(gmm, batch_emb, num_classes)
+        density = compute_gmm_density(gmm, batch_emb, class_priors)
     else:
         raise ValueError("Invalid method: choose 'kde' or 'gmm'")
 

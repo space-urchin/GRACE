@@ -37,15 +37,15 @@ with open(summary_file, "w") as f:
 # new_classes = ["Slowloris", "Dictionary Attack", "UDP Flood", "SYN Flood"]
 # streamsize = 20000
 
-# dataset_name = "unsw"
-# old_classes = ['Generic', 'Normal', 'Exploits']
-# new_classes = ['DoS', 'Reconnaissance', 'Fuzzers']
-# streamsize = 1000
+dataset_name = "unsw"
+old_classes = ['Generic', 'Normal', 'Exploits']
+new_classes = ['DoS', 'Reconnaissance', 'Fuzzers']
+streamsize = 1000
 
-dataset_name = "cic"
-old_classes = ['Normal Traffic', 'DoS', 'DDoS', 'Port Scanning']
-new_classes = ['Web Attacks', 'Bots', 'Brute Force']
-streamsize = 10000
+# dataset_name = "cic"
+# old_classes = ['Normal Traffic', 'DoS', 'DDoS', 'Port Scanning']
+# new_classes = ['Web Attacks', 'Bots', 'Brute Force']
+# streamsize = 10000
 
 
 
@@ -342,6 +342,8 @@ def main():
     """Main function to run experiments with multiple seeds."""
     print(f"Starting experiments with seeds: {SEEDS}")
     print(f"Results will be saved to: {results_dir}")
+
+    print(dataset_name)
     
     all_results = []
     
